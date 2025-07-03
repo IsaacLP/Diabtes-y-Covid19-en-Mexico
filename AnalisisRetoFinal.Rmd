@@ -1,0 +1,711 @@
+---
+title: "Actividad 4B del Reto"
+author: "Equipo4"
+date: "2022-10-07"
+output:
+  pdf_document: default
+  word_document: default
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+# Equipo 4 \| Integrantes:
+
+Rubén Darías Castro Terrazas - A00833945 Participación: 100%
+
+Isaac Alexis López Paredes - A01747148 Participación: 100%
+
+César Castro Quintero - A01742286 Participación: 100%
+
+Jorge Raúl Rocha López - A01740816 Participación: 100%
+
+
+# Pregunta rectora de investigación
+
+De los clasificados como positivos a Covid, ¿en qué proporción las personas sin comorbilidades tienen más posibilidad de sobrevivir que las que tienen diabetes o hipertensión en lo que va de este año? ¿Es la misma proporción que la de hace un año?
+
+## Variables asociadas:
+
+1.  Fecha de Defunción
+
+2.  Diabetes
+
+1 = Sí \| 2 = No
+
+
+
+
+
+
+# Código base
+```{r,echo=FALSE}
+
+#Añadimos la librerías:
+library(tidyverse)
+
+#Leemos la base de datos de nuestra muestra:
+datos = read.csv("muestra120k.csv")
+
+# Se crea una variable con las personas que fueron positivos a covid:
+Pos_cov = subset(datos,datos$CLASIFICACION_FINAL==1 |datos$CLASIFICACION_FINAL==2|datos$CLASIFICACION_FINAL==3)
+
+# Hacemos una subclasificación de las personas fallecidads que dieron positivas a covid:
+Pos_fal = subset(Pos_cov, Pos_cov$FECHA_DEF !="9999-99-99")
+D=table(Pos_fal$DIABETES,Pos_fal$FECHA_DEF)
+
+# Con comorbilidades
+CC=subset(Pos_cov,Pos_cov$DIABETES=="1" | Pos_cov$EPOC=="1" | Pos_cov$ASMA=="1" | Pos_cov$INMUSUPR=="1" | Pos_cov$HIPERTENSION=="1" | Pos_cov$OTRA_COM=="1" | Pos_cov$CARDIOVASCULAR=="1" | Pos_cov$RENAL_CRONICA=="1" | Pos_cov$OBESIDAD=="1" | Pos_cov$TABAQUISMO=="1")
+
+# Sin comorbilidades
+SC=subset(Pos_cov,Pos_cov$DIABETES=="2" & Pos_cov$EPOC=="2" & Pos_cov$ASMA=="2" & Pos_cov$INMUSUPR=="2" & Pos_cov$HIPERTENSION=="2" & Pos_cov$OTRA_COM=="2" & Pos_cov$CARDIOVASCULAR=="2" & Pos_cov$RENAL_CRONICA=="2" & Pos_cov$OBESIDAD=="2" & Pos_cov$TABAQUISMO=="2")
+
+#--------------------------------SOBREVIVIENTES--------------------------------------#
+
+
+Pos_sob = subset(Pos_cov, Pos_cov$FECHA_DEF=="9999-99-99")
+y=dim(Pos_sob)
+Total_sob=y[1]
+
+Pos_sob$FECHA_SINTOMAS = as.POSIXct(Pos_sob$FECHA_SINTOMAS)
+Pos_sob$AÑO = format(Pos_sob$FECHA_SINTOMAS, format="%Y")
+
+# Sobrevivientes en 2020
+Sob_2020 = subset(Pos_sob, Pos_sob$AÑO==2020)
+sobv_2020 = dim(Sob_2020)
+Total_sob_2020 = sobv_2020[1]
+
+# Sobrevivientes en 2021
+Sob_2021 = subset(Pos_sob, Pos_sob$AÑO==2021)
+sobv_2021 = dim(Sob_2021)
+Total_sob_2021 = sobv_2021[1]
+
+# Sobrevivientes en 2022
+Sob_2022 = subset(Pos_sob, Pos_sob$AÑO==2022)
+sobv_2022 = dim(Sob_2022)
+Total_sob_2022 = sobv_2022[1]
+
+#Información de los sobrevivientes con diabetes: 
+Sob_diabetes = subset(Pos_sob, Pos_sob$DIABETES=="1")
+
+total_sob_diabetes2 = dim(Sob_diabetes)
+total_sob_diabetes = total_sob_diabetes2[1]
+
+
+
+Sob_d_2020 = subset(Sob_diabetes, Sob_diabetes$AÑO==2020)
+td_2020 = dim(Sob_d_2020)
+total_sd_2020 = td_2020[1]
+
+Sob_d_2021 = subset(Sob_diabetes, Sob_diabetes$AÑO==2021)
+td_2021 = dim(Sob_d_2021)
+total_sd_2021= td_2020[1]
+
+
+Sob_d_2022 = subset(Sob_diabetes, Sob_diabetes$AÑO==2022)
+td_2022 = dim(Sob_d_2022)
+total_sd_2022 = td_2022[1]
+
+#Información sobrevivientes hipertensión
+Sob_hipertension = subset(Pos_sob, Pos_sob$HIPERTENSION=="1")
+
+
+total_sob_hp2 = dim(Sob_hipertension)
+total_sob_hipertension = total_sob_hp2[1]
+
+
+Sob_h_2020 = subset(Sob_hipertension, Sob_hipertension$AÑO==2020)
+th_2020 = dim(Sob_h_2020)
+total_sh_2020 = th_2020[1]
+
+Sob_h_2021 = subset(Sob_hipertension, Sob_hipertension$AÑO==2021)
+th_2021 = dim(Sob_h_2021)
+total_sh_2021 = th_2021[1]
+
+Sob_h_2022 = subset(Sob_hipertension, Sob_hipertension$AÑO==2022)
+th_2022 = dim(Sob_h_2022)
+total_sh_2022 = th_2022[1]
+
+#Información sobrevivientes sin comorbilidades:
+Sob_sc =  subset(Pos_sob, Pos_sob$DIABETES=="2" & Pos_sob$EPOC=="2" & Pos_sob$ASMA=="2" & Pos_sob$INMUSUPR=="2" & Pos_sob$HIPERTENSION=="2" & Pos_sob$OTRA_COM=="2" & Pos_sob$CARDIOVASCULAR=="2" & Pos_sob$RENAL_CRONICA=="2" & Pos_sob$OBESIDAD=="2" & Pos_sob$TABAQUISMO=="2")
+
+Sob_sc_2020 = subset(Sob_sc, Sob_sc$AÑO==2020)
+ssc_2020 = dim(Sob_sc_2020)
+total_ssc_2020 = ssc_2020[1]
+
+Sob_sc_2021 = subset(Sob_sc, Sob_sc$AÑO==2021)
+ssc_2021 = dim(Sob_sc_2021)
+total_ssc_2021 = ssc_2021[1]
+
+Sob_sc_2022 = subset(Sob_sc, Sob_sc$AÑO==2022)
+ssc_2022 = dim(Sob_sc_2022)
+total_ssc_2022 = ssc_2022[1]
+
+# Sobrevivientes sin diabetes
+Pos_sob_sin_diabetes = subset(Pos_sob, Pos_sob$DIABETES !=1)
+yu = dim(Pos_sob_sin_diabetes)
+total_sob_sin_diabetes =yu[1]
+
+# Sobrevivientes sin hipertension
+Pos_sob_sin_hipertension = subset(Pos_sob, Pos_sob$HIPERTENSION != 1)
+hu = dim(Pos_sob_sin_hipertension)
+total_sob_sin_hipertension  = hu[1]
+
+#-----------------------------FILTRADO DE FALLECIDOS--------------------------------#
+
+#Se crea una variable para el total de fallecidos
+x = dim(Pos_fal)
+Total_fal = x[1]
+
+Pos_fal$FECHA_DEF = as.POSIXct(Pos_fal$FECHA_DEF)
+Pos_fal$AÑO_FAL = format(Pos_fal$FECHA_DEF, format="%Y")
+
+#Se crea una variable para los fallecidos en todo el 2020:
+Fal_2020 = subset(Pos_fal, Pos_fal$AÑO_FAL==2020)
+fall_2020 = dim(Fal_2020)
+Total_fal_2020 = fall_2020[1]
+
+#Se crea una variable para los fallecidos en todo el 2021:
+Fal_2021 = subset(Pos_fal, Pos_fal$AÑO_FAL==2021)
+fall_2021 = dim(Fal_2021)
+Total_fal_2021 = fall_2021[1]
+
+#Se crea una variable para los fallecidos en todo el 2022:
+Fal_2022 = subset(Pos_fal, Pos_fal$AÑO_FAL==2022)
+fall_2022 = dim(Fal_2022)
+Total_fal_2022 = fall_2022[1]
+
+#Separamos a las personas fallecidas que tenían diabetes
+fal_diabetes = subset(Pos_fal,Pos_fal$DIABETES =="1")
+z = dim(fal_diabetes)
+Total_fal_diabetes =z[1]
+
+#Separamos a las personas fallecidas que tenían hipertensión
+fal_hipertension = subset(Pos_fal, Pos_fal$HIPERTENSION=="1")
+y = dim(fal_hipertension)
+Total_fal_hipertension =y[1]
+
+#Separamos a las personas que no tenían comorbilidades:
+fal_sc = subset(Pos_fal, Pos_fal$DIABETES=="2" & Pos_fal$EPOC=="2" & Pos_fal$ASMA=="2" & Pos_fal$INMUSUPR=="2" & Pos_fal$HIPERTENSION=="2" & Pos_fal$OTRA_COM=="2" & Pos_fal$CARDIOVASCULAR=="2" & Pos_fal$RENAL_CRONICA=="2" & Pos_fal$OBESIDAD=="2" & Pos_fal$TABAQUISMO=="2")
+g = dim(fal_sc)
+Total_fal_sc = g[1]  
+
+#---------------------------------FALLECIDOS-----------------------------------#
+# Fallecidos sin diabetes
+fal_sin_diabetes =subset(Pos_fal, Pos_fal$DIABETES != 1)
+Pos_fal_sin_diabetes = dim(fal_sin_diabetes)
+total_fal_sin_diabetes = Pos_fal_sin_diabetes[1]
+
+#Fallecidos que no tenían hipertensión:
+fal_sn_hipertension = subset(Pos_fal, Pos_fal$HIPERTENSION != 1)
+bgh = dim(fal_sn_hipertension)
+total_fal_sin_hipertension = bgh[1]  
+
+# Fallecidos que tenían hipertensión en el 2020
+fh_2020 = subset(fal_hipertension, fal_hipertension$AÑO_FAL==2020)
+t_fh_2020 = dim(fh_2020)
+total_fh_2020 = t_fh_2020[1]
+
+# Fallecidos que tenían hipertensión en el 2021
+fh_2021 = subset(fal_hipertension, fal_hipertension$AÑO_FAL==2021)
+t_fh_2021 = dim(fh_2021)
+total_fh_2021 = t_fh_2021[1]
+ 
+ # Fallecidos que tenían hipertensión en el 2022
+fh_2022 = subset(fal_hipertension, fal_hipertension$AÑO_FAL==2022)
+t_fh_2022 = dim(fh_2022)
+total_fh_2022 = t_fh_2022[1]
+
+# Fallecidos que tenían diabates en el 2020
+fd_2020 = subset(fal_diabetes, fal_diabetes$AÑO_FAL==2020)
+t_fd_2020 = dim(fd_2020)
+total_fd_2020 = t_fd_2020[1]
+
+# Fallecidos que tenían diabates en el 2021
+fd_2021 = subset(fal_diabetes, fal_diabetes$AÑO_FAL==2021)
+t_fd_2021 = dim(fd_2021)
+total_fd_2021 = t_fd_2021[1]
+
+# Fallecidos que tenían diabates en el 2022
+fd_2022 = subset(fal_diabetes, fal_diabetes$AÑO_FAL==2022)
+t_fd_2022 = dim(fd_2022)
+total_fd_2022 = t_fd_2022[1]
+
+
+# Fallecidos sin comorbilidades en el 2020
+fal_sc_2020 = subset(fal_sc, fal_sc$AÑO_FAL==2020)
+sc_2020 = dim(fal_sc_2020)
+total_sc_2020 = sc_2020[1]
+
+
+#Fallecidos in comorbilidades en el 2021
+fal_sc_2021 = subset(fal_sc, fal_sc$AÑO_FAL==2021)
+sc_2021 = dim(fal_sc_2021)
+total_sc_2021 = sc_2021[1]
+
+#Fallecidas sin comorbilidades en el 2022
+fal_sc_2022 = subset(fal_sc, fal_sc$AÑO_FAL==2022)
+sc_2022 = dim(fal_sc_2022)
+total_sc_2022 = sc_2022[1]
+
+#-----------------------------PROPORCIONES DE FALLECIDOS-----------------------------------#
+
+# --------------TOTAL--------------------#
+# Proporción diabetes
+p_fd_total=Total_fal_diabetes/Total_fal
+
+# Proporción hipertensión
+p_fh_total=Total_fal_hipertension/Total_fal
+
+#Proporción s/comorbilidades:
+p_sc_total=Total_fal_sc/Total_fal
+
+# --------------2020--------------------#
+
+# Proporcion diabetes
+p_fd_2020=total_fd_2020/Total_fal_2020
+p_sd_2020=total_sd_2020/Total_sob_2020
+
+#Proporción hipertensión
+p_fh_2020=total_fh_2020/Total_fal_2020
+
+#Proporción s/comorbilidades
+p_sc_2020=total_sc_2020/Total_fal_2020
+p_ssc_2020=total_ssc_2020/Total_sob_2020
+
+# --------------2021---------------------#
+
+# Proporcion diabetes
+p_fd_2021=total_fd_2021/Total_fal_2021
+p_sd_2021=total_sd_2021/Total_sob_2021
+
+#Proporción hipertensión
+p_fh_2021=total_fh_2021/Total_fal_2021
+
+#Proporción s/comorbilidades
+p_sc_2021= total_sc_2021/Total_fal_2021
+p_ssc_2021=total_ssc_2021/Total_sob_2021
+
+# -------------2022-----------------#
+
+# Proporcion diabetes
+p_fd_2022=total_fd_2022/Total_fal_2022
+p_sd_2022=total_sd_2022/Total_sob_2022
+
+#Proporción hipertensión
+p_fh_2022=total_fh_2022/Total_fal_2022
+
+#Proporción s/comorbilidades
+p_sc_2022=total_sc_2022/Total_fal_2022
+p_ssc_2022=total_ssc_2022/Total_sob_2022
+```
+
+# Medidas descriptivas de las variables
+
+## Tablas de contingencia
+
+```{r,echo=FALSE}
+#Tabla comparativa de sobrevivientes y fallecidos por año,  con diabetes 
+
+tabla_com_sob_fal_diabetes = matrix(c(total_sd_2020, total_sd_2021, total_sd_2022, total_fd_2020, total_fd_2021, total_fd_2022), ncol=3, byrow=TRUE)
+
+colnames(tabla_com_sob_fal_diabetes) = c("2020", "2021", "2022")
+rownames(tabla_com_sob_fal_diabetes) = c("Sí sobrevivió", "No sobrevivió")
+
+
+tabla_comp_diabetes = as.table(tabla_com_sob_fal_diabetes)
+tabla_comp_diabetes
+```
+```{r,echo=FALSE}
+tabla_com_d = matrix(c(total_sob_diabetes,Total_fal_diabetes,total_sob_sin_diabetes,total_fal_sin_diabetes),ncol = 2, byrow = TRUE)
+
+
+colnames(tabla_com_d) = c("Sí sobrevivio", "No sobrevivio")
+rownames(tabla_com_d) = c("Con diabetes", "Sin diabetes")
+
+
+tabla_com_diabetes = as.table(tabla_com_d)
+tabla_com_diabetes
+```
+```{r,echo=FALSE}
+# Tabla de proporciones de sobrevivientes
+resumen_sob=matrix(c(p_sd_2020,p_ssc_2020,p_sd_2021,p_ssc_2021,p_sd_2022,p_ssc_2022),ncol=2,byrow=TRUE) 
+colnames(resumen_sob)=c("Con diabetes","Sin comorbilidades")
+rownames(resumen_sob)=c("2020","2021","2022")  
+tabla_proporciones_sob=as.table(resumen_sob) 
+tabla_proporciones_sob
+```
+
+## Gráficas
+
+### Diabéticos
+```{r,echo=FALSE}
+T = table(Pos_cov$DIABETES)
+T = prop.table(T) 
+names(T) = c("Sí","No","No especificado")
+etiquetas <- c(round(T[1]*100,2),round(T[2]*100,2),round(T[3]*100,2))
+T
+pie(T,labels=etiquetas,col=c("#E36B2C","#109DFA","#C82A54"),main="Diagnosticados con diabetes")
+legend("bottomleft",names(T),cex=0.79,fill = c("#E36B2C","#109DFA","#C82A54"))
+```
+### Año
+```{r,echo=FALSE}
+Num_sob=table(Pos_sob$AÑO)
+Num_fal=table(Pos_fal$AÑO)
+
+m=as.table(matrix(c(24022,40922,49416,2602,2615,423),nrow=2,ncol=3,byrow = TRUE))
+colnames(m)=c("2020","2021","2022")
+row.names(m)=c("Sobrevivientes","Fallecidos")
+m
+
+barplot(m,main="Pacientes por año",ylab = "Total",col=c("#109DFA","#C82A54"))
+legend("topleft",row.names(m),fill=c("#109DFA","#C82A54"))
+```
+### Comorbilidades
+```{r,echo=FALSE}
+total_sc=dim(SC)[1]
+total_cc=dim(CC)[1]
+total_ne=120000-(total_sc+total_cc)
+comorbilidades=as.table(matrix(c(total_sc/120000,total_cc/120000,total_ne/120000),ncol=3))
+row.names(comorbilidades)=c("Proporción")
+colnames(comorbilidades)=c("Sin","Con","No especificado")
+etiquetas=c(round(comorbilidades[1]*100,2),round(comorbilidades[2]*100,2),round(comorbilidades[3]*100,2))
+
+pie(comorbilidades,labels=etiquetas,col=c("#E36B2C","#109DFA","#C82A54"))
+legend("topleft",c("Sin","Con","No especificado"),fill =c("#E36B2C","#109DFA","#C82A54"))
+```
+
+
+### Proporción de sobrevivientes
+```{r,echo=FALSE}
+barplot(t(tabla_proporciones_sob),
+        main="Proporción de personas que sobrevivieron",
+        xlab="Año",ylab="Proporción",
+        col=c("#C82A54", "#109DFA"),
+        legend.text=colnames(tabla_proporciones_sob),
+        args.legend = list(x="bottomleft",inset = c(0,-0.3),cex=0.75),
+        beside = TRUE)
+```
+
+### Número de sobrevivientes
+```{r,echo=FALSE}
+sobrevivientes=matrix(c(total_sd_2020, total_ssc_2020,total_sd_2021, total_ssc_2021,total_sd_2022, total_ssc_2022),ncol=2,byrow=TRUE)
+colnames(sobrevivientes)=c("Con diabetes", "Sin Comorbilidades")
+rownames(sobrevivientes)=c("2020","2021","2022")
+tabla_sobrevivientes=as.table(sobrevivientes) 
+
+barplot(t(tabla_sobrevivientes),
+        main="Número de personas que sobrevivieron",
+        xlab="Año",ylab="Número",
+        col= c("#C82A54", "#109DFA"), 
+        legend.text=colnames(sobrevivientes),
+        args.legend = list(x="topleft",inset = c(0.05,0)),
+        beside=TRUE)
+```
+
+
+
+
+
+
+# Análisis estadístico
+
+## Intervalos de confianza
+
+### Verdadera proporción de sobrevivientes de diabetes en 2020
+```{r,echo=FALSE}
+pbarra=p_sd_2020
+qbarra=1-pbarra
+n=Total_sob_2020
+
+alfa=0.01
+
+z_alfa=abs(qnorm(alfa/2))
+
+Error=sqrt(pbarra*qbarra/n)
+
+Li=pbarra-z_alfa*Error
+Ls=pbarra+z_alfa*Error
+
+cat("La verdadera proporción se encuentra entre el intervalo en [",Li,",",Ls,"]
+con un nivel de confianza de ",100 * (1 - alfa),"%")
+```
+```{r,echo=FALSE}
+plot(0, ylim=c(0, 2), xlim=c(0.1,0.12), yaxt="n", ylab="",xlab="Proporción",main="Proporción de personas con diabetes que sobrevivieron en 2020")
+axis(2, at=c(1), labels =c("Intervalo 1"))
+arrows(Li, 1, Ls, 1, angle=90, code=3, length=0.1, lwd=2)
+points(pbarra, 1, pch=19, cex=1.1)
+abline(v=.7,col="red")
+text(pbarra,0.8,"0.1096")
+```
+
+### Diferencia de proporciones de sobrevivientes con diabetes y sin comorbilidades de 2020 a 2021
+```{r,echo=FALSE}
+x=c(total_ssc_2020,total_ssc_2021)
+n=c(Total_sob_2020,Total_sob_2021)
+
+x2=c(total_sd_2020,total_sd_2021)
+
+prop.test(x,n,conf.level = 0.99)
+prop.test(x2,n,conf.level = 0.99)
+```
+```{r,echo=FALSE}
+plot(0, ylim=c(0, 3), xlim=c(-0.1,0.07), yaxt="n",xlab="Diferencia de proporciones",ylab="",main="Sobrevivientes en 2020 y sobreviventes en 2021")
+axis(2, at=c(1,2), labels=c("S/c","C/d"))
+arrows(-0.08536, 1, -0.06786, 1, angle=90, code=3, length=0.1, lwd=2)
+arrows(0.03917, 2, 0.051358, 2, angle=90, code=3, length=0.1, lwd=2)
+points(0.7463-0.8229, 1, pch=19, cex=1.1)
+points(0.1096-0.0643, 2, pch=19, cex=1.1)
+text(-0.07666,0.8,"-0.076")
+text(0.0453,1.8,"0.045")
+abline(v=0,col="red")
+```
+
+### Diferencia de proporciones de sobrevivientes con diabetes y sin comorbilidades de 2021 a 2022
+```{r,echo=FALSE}
+x=c(total_ssc_2022,total_ssc_2021)
+n=c(Total_sob_2021,Total_sob_2022)
+
+x2=c(total_sd_2021,total_sd_2022)
+
+prop.test(x,n,conf.level = 0.99)
+prop.test(x2,n,conf.level = 0.99)
+```
+```{r,echo=FALSE}
+plot(0, ylim=c(0, 3), xlim=c(-0.09,0.07), yaxt="n",xlab="Diferencia de proporciones",ylab="",main="Sobrevivientes en 2021 y sobreviventes en 2022")
+axis(2, at=c(1,2), labels=c("S/c","C/d"))
+arrows(-0.0651, 1, -0.0502, 1, angle=90, code=3, length=0.1, lwd=2)
+arrows(0.0033, 2, 0.011, 2, angle=90, code=3, length=0.1, lwd=2)
+points(0.7258-0.7835, 1, pch=19, cex=1.1)
+points(0.0643-0.0568, 2, pch=19, cex=1.1)
+text(-0.0577,0.8,"-0.057")
+text(0.0075,1.8,"0.007")
+abline(v=0,col="red")
+```
+### Diferencia de proporciones de sobreviventes sin comorbilidades y sobrevivientes con diabetes
+```{r,echo=FALSE}
+# 2020
+x=c(total_ssc_2020,total_sd_2020)
+n=c(Total_sob_2020,Total_sob_2020)
+prop.test(x,n)
+```
+```{r,echo=FALSE}
+Li1=0.6298
+Ls1=0.6435
+diff1=.7463-.1096
+```
+
+```{r,echo=FALSE}
+#2021
+x=c(total_ssc_2021,total_sd_2021)
+n=c(Total_sob_2021,Total_sob_2021)
+prop.test(x,n)
+```
+```{r,echo=FALSE}
+Li2=0.7541
+Ls2=0.7630
+diff2=.8229-0.0643
+```
+
+```{r,echo=FALSE}
+#2022
+x=c(total_ssc_2022,total_sd_2022)
+n=c(Total_sob_2022,Total_sob_2022)
+prop.test(x,n)
+```
+```{r,echo=FALSE}
+Li3=0.7894
+Ls3=0.7969
+diff3=.85-.0568
+```
+
+```{r,echo=FALSE}
+plot(0, ylim=c(0, 4), xlim=c(0.6,0.8), yaxt="n",xlab="Diferencia de proporciones",ylab="",main="Sobrevivientes s/c y sobrevivientes c/d")
+axis(2, at=c(1,2,3), labels=c("2020","2021","2022"))
+arrows(Li1, 1, Ls1, 1, angle=90, code=3, length=0.1, lwd=2)
+arrows(Li2, 2, Ls2, 2, angle=90, code=3, length=0.1, lwd=2)
+arrows(Li3, 3, Ls3, 3, angle=90, code=3, length=0.1, lwd=2)
+points(diff1, 1, pch=19, cex=1.1)
+points(diff2, 2, pch=19, cex=1.1)
+points(diff3, 3, pch=19, cex=1.1)
+text(diff1,0.8,"0.6367")
+text(diff2,1.8,"0.7593")
+text(diff3,2.8,"0.7932")
+abline(v=0,col="red")
+```
+
+
+
+
+
+
+## Pruebas de hipótesis
+
+### Independencia de sobrevivir o no con diabetes
+
+$H_0$: Sobrevivr es independiente de diabetes
+
+$H_1$: Sobrevivir no es independiente
+
+Se rechaza $H_0$ si:
+
+• Regla clasica: $|\chi^2_*| > \chi^2_o$
+
+• Regla del valor valor p: p < 0.05
+```{r,echo=FALSE}
+chi_0=qchisq(1-0.05,1) # Valor frontera
+cat("Chi_0=",chi_0)
+```
+```{r,echo=FALSE}
+tabla_com_diabetes
+chisq.test(tabla_com_diabetes)
+```
+Conclusión:
+
+$$|\chi^2_*|=5867 > 3.8414=\chi^2_o$$
+$$p=2.2*10^{-16}<0.05$$
+Por lo tanto se rechaza $H_o$ y se concluye que tener diabetes no es independiente de sobrevivir con un 95% de confianza.
+
+
+
+### Proporción de fallecidos menor a 0.7
+
+```{r,echo=FALSE}
+prop.test(total_fd_2020,Total_fal_2020,p=0.7,alternative="less")
+```
+
+### Proporción de sobrevivientes con diabetes de 2020 a 2021
+$$H_0:p_1-p_2=0$$
+$$H_1:p_1-p_2>0$$
+Se rechaza $H_0$ si:
+
+• Regla del valor valor p: p < 0.05
+```{r,echo=FALSE}
+x=c(total_sd_2020,total_sd_2021)
+n=c(Total_sob_2020,Total_sob_2021)
+
+prop.test(x,n,alternative="greater",conf.level = 0.99)
+```
+
+### Proporción de sobrevivientes sin comorbilidades de 2020 a 2021
+$$H_0:p_1-p_2=0$$
+$$H_1:p_1-p_2>0$$
+Se rechaza $H_0$ si:
+
+• Regla del valor valor p: p < 0.05
+```{r,echo=FALSE}
+x=c(total_ssc_2020,total_ssc_2021)
+n=c(Total_sob_2020,Total_sob_2021)
+
+prop.test(x,n,alternative="less",conf.level = 0.99)
+```
+
+### Proporción de sobrevivientes con diabetes de 2021 a 2022
+$$H_0:p_1-p_2=
+0$$
+$$H_1:p_1-p_2>0$$
+Se rechaza $H_0$ si:
+
+• Regla del valor valor p: p < 0.05
+```{r,echo=FALSE}
+x=c(total_sd_2021,total_sd_2022)
+n=c(Total_sob_2021,Total_sob_2022)
+
+prop.test(x,n,alternative="greater",conf.level = 0.99)
+```
+
+
+### Proporción de sobrevivientes sin comorbilidades de 2021 a 2022
+$$H_0:p_1-p_2=0$$
+$$H_1:p_1-p_2>0$$
+Se rechaza $H_0$ si:
+
+• Regla del valor valor p: p < 0.05
+```{r,echo=FALSE}
+x=c(total_ssc_2021,total_ssc_2022)
+n=c(Total_sob_2021,Total_sob_2022)
+
+prop.test(x,n,alternative="less",conf.level = 0.99)
+```
+
+
+### Diferencia de proporciones de sobrevivientes con diabetes y sin comorbilidades en 2020
+$$H_0:p_1-p_2=0$$
+$$H_1:p_1-p_2>0$$
+Se rechaza $H_0$ si:
+
+$p<0.05$
+
+```{r,echo=FALSE}
+p1=total_ssc_2020
+p2=total_sd_2020
+x=c(p1,p2)
+
+n1=Total_sob_2020
+n2=Total_sob_2020
+n=c(n1,n2)
+
+prop.test(x,n,alternative="greater")
+```
+$$p=2.2*10^{-16}<0.05$$
+Por lo tanto se rechaza $H_0$ y se puede decir con un nivel de confianza del 95% que la proporción de sobrevivientes sin comorbilidades es mayor que la de sobrevivientes con diabetes
+
+
+
+
+### Diferencia de proporciones de sobrevivientes con diabetes y sin comorbilidades en 2021
+$$H_0:p_1-p_2=0$$
+$$H_1:p_1-p_2>0$$
+Se rechaza $H_0$ si:
+
+$p<0.05$
+
+```{r,echo=FALSE}
+p1=total_ssc_2021
+p2=total_sd_2021
+x=c(p1,p2)
+
+n1=Total_sob_2021
+n2=Total_sob_2021
+n=c(n1,n2)
+
+prop.test(x,n,alternative="greater")
+```
+$$p=2.2*10^{-16}<0.05$$
+Por lo tanto se rechaza $H_0$ y se puede decir con un nivel de confianza del 95% que la proporción de sobrevivientes sin comorbilidades es mayor que la de sobrevivientes con diabetes
+
+
+
+
+### Diferencia de proporciones de sobrevivientes con diabetes y sin comorbilidades en 2022
+$$H_0:p_1-p_2=0$$
+$$H_1:p_1-p_2>0$$
+Se rechaza $H_0$ si:
+
+$p<0.05$
+
+```{r,echo=FALSE}
+p1=total_ssc_2022
+p2=total_sd_2022
+x=c(p1,p2)
+
+n1=Total_sob_2022
+n2=Total_sob_2022
+n=c(n1,n2)
+
+prop.test(x,n,alternative="greater")
+```
+$$p=2.2*10^{-16}<0.05$$
+Por lo tanto se rechaza $H_0$ y se puede decir con un nivel de confianza del 95% que la proporción de sobrevivientes sin comorbilidades es mayor que la de sobrevivientes con diabetes
+
+
+
+
+# Referencias:
+
+Ciotti, M., Ciccozzi, M., Terrinoni, A., Jiang, W. C., Wang, C. B., & Bernardini, S. (2020). The COVID-19 pandemic. Critical reviews in clinical laboratory sciences, 57(6), 365-388.
+
+Organización Mundial de la Salud. Coronavirus. (2020). Recuperado de: <https://www.who.int/es/health-topics/coronavirus#tab=tab_1>
+
+Organización Panamericana de la Salud. Brote de enfermedad por el Coronavirus COVID-19. (2021). Recuperado de: <https://www.paho.org/es/temas/coronavirus/brote-enfermedad-por-coronavirus-covid-19>
